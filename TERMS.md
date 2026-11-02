@@ -16,7 +16,7 @@ Kathail operates the service. A submission of a job accepts these terms.
 - You must have the right to run the app that you submit.
 - Do not submit an app that attacks the board, the kernel, the host or the service.
 - Do not print a secret from your app. The log goes to your workflow run and stays in the service
-  for 7 days.
+  for 2 days.
 - The host installs your app on the board, so the operator can read it while the job runs.
 
 ## What the service stores
@@ -24,8 +24,8 @@ Kathail operates the service. A submission of a job accepts these terms.
 | Data | Time |
 |---|---|
 | The TAB | Until one minute after the job ends |
-| The owner ID, the repository name, the board, the times, the exit code and the install count of a job | 7 days from the end of the job |
-| The log, the JUnit file and the step summary of a run | 7 days from the end of the job |
+| The owner ID, the repository name, the board, the times, the exit code and the install count of a job | 2 days from the end of the job |
+| The log, the JUnit file and the step summary of a run | 2 days from the end of the job |
 | The owner ID and the creation time of the owner account, from the GitHub users API | With no time limit |
 | The ID of each OIDC token | Until the token expires |
 
