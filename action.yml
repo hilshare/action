@@ -1,0 +1,62 @@
+name: HILShare
+description: Runs a Tock app on a physical board through the HILShare service, and reports the exit code of the run.
+
+# The job needs `permissions: id-token: write`. The action needs no secret and nothing else on
+# a GitHub-hosted runner. README.md has the exit codes.
+
+inputs:
+  app:
+    description: The path of the TAB.
+    required: true
+  board:
+    description: The board for the run, for example nucleo-f411re.
+    required: true
+  expected-exit:
+    description: The exit code that the run must give, from 0 to 11. 0 is a pass, 1 is a fail and 9 is a fault.
+    required: false
+    default: "0"
+
+outputs:
+  exit-code:
+    description: The exit code of the run, or the exit code of the action. README.md has the table.
+    value: ${{ steps.submit.outputs.exit-code }}
+  job-id:
+    description: The ID of the job in the service. It is empty if the service accepted no job.
+    value: ${{ steps.submit.outputs.job-id }}
+
+runs:
+  using: composite
+  steps:
+    # The runner sends a cancel only to the entry process of the step. `exec` makes submit.py
+    # that process, so its signal handler removes a queued job.
+    - name: Submit the TAB and follow the job
+      id: submit
+      shell: bash
+      env:
+        APP: ${{ inputs.app }}
+        BOARD: ${{ inputs.board }}
+        EXPECTED_EXIT: ${{ inputs.expected-exit }}
+      run: |
+        if ! command -v python3 > /dev/null 2>&1; then
+          echo "::error::this runner has no python3; use a GitHub-hosted runner"
+          echo "exit-code=27" >> "$GITHUB_OUTPUT"
+          exit 27
+        fi
+        exec python3 "$GITHUB_ACTION_PATH/submit.py"
+
+    - name: Upload the log and the JUnit file
+      id: upload
+      if: ${{ always() && steps.submit.outputs.directory != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.submit.outputs.artifact-name }}
+        path: ${{ steps.submit.outputs.directory }}
+        overwrite: true
+        retention-days: 7
+
+    - name: Link the artifact from the step summary
+      if: ${{ always() && steps.upload.outputs.artifact-url != '' }}
+      shell: bash
+      env:
+        ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+      run: echo "[The log and the JUnit file]($ARTIFACT_URL)" >> "$GITHUB_STEP_SUMMARY"
