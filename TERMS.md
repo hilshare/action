@@ -16,7 +16,7 @@ Kathail operates the service. A submission of a job accepts these terms.
 - You must have the right to run the app that you submit.
 - Do not submit an app that attacks the board, the kernel, the host or the service.
 - Do not print a secret from your app. The log goes to your workflow run and stays in the service
-  for 2 days.
+  for 25 hours.
 - The host installs your app on the board, so the operator can read it while the job runs.
 
 ## What the service stores
@@ -24,13 +24,14 @@ Kathail operates the service. A submission of a job accepts these terms.
 | Data | Time |
 |---|---|
 | The TAB | Until one minute after the job ends |
-| The owner ID, the repository name, the board, the times, the exit code and the install count of a job | 2 days from the end of the job |
-| The log, the JUnit file and the step summary of a run | 2 days from the end of the job |
+| The owner ID, the repository name, the board, the times, the exit code and the install count of a job | 25 hours from the end of the job |
+| The log, the JUnit file and the step summary of a run | 25 hours from the end of the job |
 | The owner ID and the creation time of the owner account, from the GitHub users API | With no time limit |
 | The ID of each OIDC token | Until the token expires |
 
-The status page is public. It shows the first 8 characters of each job ID, the host, the board, the
-times and the exit code. It shows no repository name and no owner.
+The status page and its JSON form at `/v1/status` are public. They show the first 8 characters of
+each job ID, the host, the board, the times, the wait, the exit code, the number of installs and the
+counts of the last 24 hours. They show no repository name and no owner.
 
 Cloudflare carries each request and holds the data of the service. GitHub issues the OIDC token and
 the account data.
